@@ -1,4 +1,4 @@
-Propuesta del Proyecto
+Propuesta del Proyecto:
 La idea del proyecto será determinar cómo se puede ver afectado el costo de vida de un estudiante en Chile al modificar sus conductas dentro de un contexto económico nacional que es variable. Lograremos responder preguntas como: ¿Cuánto más costosas pueden ser mis suscripciones mensuales frente a un aumento en el precio del dólar? - ¿Cómo cambia mi poder adquisitivo con la inflación reciente? - ¿Cómo puedo optimizar mis gastos frente a mi presupuesto mensual?
 Nos basaremos en dos tipos de información disponible: (i) datos personales ordenados por categorías típicas de un estudiante (comida, transporte, educación, ocio, etc), armando de esta manera una canasta personalizada de referencia. (ii) Datos macroeconómicos oficiales (inflación, tipo de cambio, tasas de política monetaria). De esta manera podremos generar un análisis para distintos escenarios económicos y cómo estos afectan en mayor o menor medida el poder adquisitivo real de un estudiante determinado
 
