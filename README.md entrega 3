@@ -57,7 +57,6 @@ proyecto-costo-vida/
 │
 ├── main.py                 # codigo principal
 ├── schema.sql              # Esquema de la base de datos (SQLite)
-├── gastos.db               # Base de datos local donde se guardan los datos
 ├── scripts/
 │   └── ingesta.py          # Script que descarga y guarda datos del IPC y USD/CLP
 ├── README.md               # Documento explicativo del proyecto (esta entrega)
