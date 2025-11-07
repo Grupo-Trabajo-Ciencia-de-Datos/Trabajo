@@ -61,9 +61,9 @@ proyecto-costo-vida/
 │   └── ingesta.py          # Script que descarga y guarda datos del IPC y USD/CLP
 ├── README.md               # Documento explicativo del proyecto (esta entrega)
 
-## 📋 **7. Detalle de Endpoints**
+**7. Detalle de Endpoints**
 
-### **Endpoints Personales**
+**Endpoints Personales**
 
 GET /api/db/gastos
 Entrega todos los gastos personales guardados en la base de datos.
