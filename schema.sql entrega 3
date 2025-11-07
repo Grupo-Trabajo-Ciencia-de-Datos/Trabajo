@@ -1,0 +1,44 @@
+-- ================================================================
+-- schema.sql
+-- Proyecto: Costo de Vida Universitario en Chile
+-- BD: SQLite (gastos.db)
+-- ================================================================
+
+-- Tabla de gastos personales
+CREATE TABLE IF NOT EXISTS gastos (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  categoria TEXT    NOT NULL,
+  monto     REAL    NOT NULL,
+  fecha     TEXT    NOT NULL  -- formato 'YYYY-MM-DD'
+);
+
+-- Índices útiles para consultas por fecha y categoría
+CREATE INDEX IF NOT EXISTS ix_gastos_fecha     ON gastos(fecha);
+CREATE INDEX IF NOT EXISTS ix_gastos_categoria ON gastos(categoria);
+
+-- ---------------------------------------------------------------
+
+-- Tabla de indicadores económicos (cargados por scripts/ingesta.py)
+-- indicador: 'ipc' | 'usdclp' (puedes agregar más a futuro)
+CREATE TABLE IF NOT EXISTS indicadores (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  indicador TEXT    NOT NULL,  -- 'ipc' | 'usdclp'
+  fecha     TEXT    NOT NULL,  -- 'YYYY-MM-DD'
+  valor     REAL    NOT NULL,  -- % (ipc) o precio (usdclp)
+  fuente    TEXT    NOT NULL   -- p.ej. 'mindicador.cl'
+);
+
+-- Evita duplicados por (indicador, fecha)
+CREATE UNIQUE INDEX IF NOT EXISTS ux_indicadores_tipo_fecha
+  ON indicadores(indicador, fecha);
+
+-- Índice para ordenar/filtrar por fecha
+CREATE INDEX IF NOT EXISTS ix_indicadores_fecha
+  ON indicadores(fecha);
+
+-- ================================================================
+-- (Opcional) Inserts de prueba rápidos — comenta o borra si no los quieres
+-- INSERT INTO gastos (categoria, monto, fecha) VALUES
+-- ('alimentacion', 100000, '2025-11-01'),
+-- ('transporte',   35000,  '2025-11-01');
+-- ================================================================

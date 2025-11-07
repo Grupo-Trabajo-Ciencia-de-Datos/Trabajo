@@ -1,0 +1,130 @@
+# ================================================================
+# main.py
+# Proyecto: Costo de Vida Universitario en Chile
+# Curso: EAE253B - Economía y Ciencia de Datos
+# Autores: André van Bavel | Nicolás Droppelmann
+# Profesor: Carlos Alvarado
+# Fecha: 6 de noviembre de 2025
+# ================================================================
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import sqlite3
+import requests
+from datetime import datetime
+
+app = FastAPI(
+    title="API - Costo de Vida Universitario en Chile",
+    description="Analiza cómo la inflación y el tipo de cambio afectan los gastos de un estudiante chileno.",
+    version="3.0"
+)
+
+# ---------------------------
+# Modelos y conexión a la BD
+# ---------------------------
+class Gasto(BaseModel):
+    categoria: str
+    monto: float
+
+def get_db_connection():
+    conn = sqlite3.connect("gastos.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# ---------------------------
+# Endpoints personales
+# ---------------------------
+@app.get("/api/db/gastos", tags=["Personales"])
+def obtener_gastos():
+    conn = get_db_connection()
+    gastos = conn.execute("SELECT * FROM gastos").fetchall()
+    conn.close()
+    return [dict(g) for g in gastos]
+
+@app.post("/api/db/gastos", tags=["Personales"])
+def agregar_gasto(gasto: Gasto):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO gastos (categoria, monto, fecha) VALUES (?, ?, ?)",
+        (gasto.categoria, gasto.monto, datetime.now().strftime("%Y-%m-%d"))
+    )
+    conn.commit()
+    conn.close()
+    return {"mensaje": "Gasto agregado", "categoria": gasto.categoria, "monto": gasto.monto}
+
+# ---------------------------
+# Endpoints económicos externos
+# ---------------------------
+@app.get("/api/economia/ipc", tags=["Económicos"])
+def obtener_ipc():
+    try:
+        r = requests.get("https://mindicador.cl/api/ipc")
+        d = r.json()
+        return {
+            "indicador": d["nombre"],
+            "fecha": d["serie"][0]["fecha"][:10],
+            "valor": d["serie"][0]["valor"],
+            "fuente": "mindicador.cl"
+        }
+    except:
+        raise HTTPException(status_code=500, detail="Error al obtener IPC.")
+
+@app.get("/api/economia/tipo_cambio", tags=["Económicos"])
+def obtener_tipo_cambio():
+    try:
+        r = requests.get("https://mindicador.cl/api/dolar")
+        d = r.json()
+        return {
+            "indicador": d["nombre"],
+            "fecha": d["serie"][0]["fecha"][:10],
+            "valor": d["serie"][0]["valor"],
+            "fuente": "mindicador.cl"
+        }
+    except:
+        raise HTTPException(status_code=500, detail="Error al obtener tipo de cambio.")
+
+# ---------------------------
+# Endpoints base de datos
+# ---------------------------
+@app.get("/api/db/indicadores", tags=["Base de Datos"])
+def obtener_indicadores(indicador: str):
+    conn = get_db_connection()
+    data = conn.execute("SELECT * FROM indicadores WHERE indicador = ?", (indicador,)).fetchall()
+    conn.close()
+    if not data:
+        raise HTTPException(status_code=404, detail=f"No hay datos del indicador '{indicador}'.")
+    return [dict(i) for i in data]
+
+# ---------------------------
+# Endpoint analítico
+# ---------------------------
+@app.get("/api/analisis/impacto-inflacion", tags=["Analíticos"])
+def impacto_inflacion(periodo: str):
+    conn = get_db_connection()
+    gastos = conn.execute("SELECT categoria, monto FROM gastos").fetchall()
+    conn.close()
+    if not gastos:
+        raise HTTPException(status_code=404, detail="No hay gastos registrados.")
+
+    try:
+        r = requests.get("https://mindicador.cl/api/ipc")
+        d = r.json()
+        ipc = d["serie"][0]["valor"]
+    except:
+        raise HTTPException(status_code=500, detail="Error al obtener IPC.")
+
+    impacto = {g["categoria"]: f"+{round(ipc * 0.05, 2)}%" for g in gastos}
+
+    return {
+        "periodo": periodo,
+        "ipc": ipc,
+        "impacto_estimado": impacto,
+        "mensaje": f"Costo de vida ↑ {round(ipc * 0.05, 2)}% aprox."
+    }
+
+# ---------------------------
+# Endpoint raíz
+# ---------------------------
+@app.get("/", tags=["Inicio"])
+def home():
+    return {"mensaje": "API funcionando correctamente 🚀"}
