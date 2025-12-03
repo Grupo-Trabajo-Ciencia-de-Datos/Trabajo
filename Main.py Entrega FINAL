@@ -1,0 +1,224 @@
+# ================================================================
+# main.py
+# Proyecto: Costo de Vida Universitario en Chile
+# Curso: EAE253B - Economía y Ciencia de Datos
+# Autores: André van Bavel | Nicolás Droppelmann
+# Profesor: Carlos Alvarado
+# Fecha: 6 de noviembre de 2025
+# ================================================================
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import sqlite3
+import requests
+from datetime import datetime
+from analisis import resumen_mensual, escenario_inflacion, escenario_tipo_cambio
+
+
+app = FastAPI(
+    title="API - Costo de Vida Universitario en Chile",
+    description="Analiza cómo la inflación y el tipo de cambio afectan los gastos de un estudiante chileno.",
+    version="3.0"
+)
+
+# ---------------------------
+# Modelos y conexión a la BD
+# ---------------------------
+class Gasto(BaseModel):
+    categoria: str
+    monto: float
+
+def get_db_connection():
+    conn = sqlite3.connect("gastos.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# ---------------------------
+# Endpoints personales
+# ---------------------------
+
+
+@app.get("/personal/familia", tags=["Personales"])
+def info_familia():
+    return {
+        "nombre": "André Van Bavel",
+        "ciudad": "Santiago, Chile",
+        "familia": 4
+    }
+
+@app.get("/personal/intereses", tags=["Personales"])
+def intereses():
+    return {
+        "intereses": ["Economía", "Ciencia de Datos", "Fútbol", "Viajar", "Proyectos personales"]
+    }
+
+@app.get("/personal/historial", tags=["Personales"])
+def historial():
+    return {
+        "carrera": "Ingeniería Comercial",
+        "universidad": "Pontificia Universidad Católica de Chile",
+        "semestres_cursados": 9,
+        "promedio": 6.1
+    }
+
+@app.get("/api/db/gastos", tags=["Personales"])
+def obtener_gastos():
+    conn = get_db_connection()
+    gastos = conn.execute("SELECT * FROM gastos").fetchall()
+    conn.close()
+    return [dict(g) for g in gastos]
+
+@app.post("/api/db/gastos", tags=["Personales"])
+def agregar_gasto(gasto: Gasto):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO gastos (categoria, monto, fecha) VALUES (?, ?, ?)",
+        (gasto.categoria, gasto.monto, datetime.now().strftime("%Y-%m-%d"))
+    )
+    conn.commit()
+    conn.close()
+    return {"mensaje": "Gasto agregado", "categoria": gasto.categoria, "monto": gasto.monto}
+
+# ---------------------------
+# CRUD adicional GASTOS
+# ---------------------------
+
+@app.get("/api/db/gastos/{gasto_id}", tags=["Base de Datos"])
+def obtener_gasto_por_id(gasto_id: int):
+    conn = get_db_connection()
+    row = conn.execute("SELECT * FROM gastos WHERE id = ?", (gasto_id,)).fetchone()
+    conn.close()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Gasto no encontrado")
+    return dict(row)
+
+@app.put("/api/db/gastos/{gasto_id}", tags=["Base de Datos"])
+def actualizar_gasto(gasto_id: int, gasto: Gasto):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE gastos SET categoria = ?, monto = ? WHERE id = ?",
+                (gasto.categoria, gasto.monto, gasto_id))
+    conn.commit()
+    conn.close()
+    if cur.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Gasto no encontrado")
+    return {"mensaje": "Gasto actualizado", "id": gasto_id}
+
+@app.delete("/api/db/gastos/{gasto_id}", tags=["Base de Datos"])
+def eliminar_gasto(gasto_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM gastos WHERE id = ?", (gasto_id,))
+    conn.commit()
+    conn.close()
+    if cur.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Gasto no encontrado")
+    return {"mensaje": "Gasto eliminado correctamente"}
+
+# ---------------------------
+# Endpoints económicos externos
+# ---------------------------
+@app.get("/api/economia/ipc", tags=["Económicos"])
+def obtener_ipc():
+    try:
+        r = requests.get("https://mindicador.cl/api/ipc")
+        d = r.json()
+
+        # Buscar el último dato de IPC cuyo valor NO sea 0
+        punto_valido = None
+        for punto in d["serie"]:
+            if punto["valor"] != 0:
+                punto_valido = punto
+                break
+
+        if punto_valido is None:
+            # Si todos son 0, no tiene sentido devolverlo
+            raise HTTPException(
+                status_code=502,
+                detail="IPC no disponible temporalmente (todos los valores son 0)."
+            )
+
+        return {
+            "indicador": d["nombre"],
+            "fecha": punto_valido["fecha"][:10],
+            "valor": punto_valido["valor"],
+            "fuente": "mindicador.cl"
+        }
+    except HTTPException:
+        # Re-lanzamos errores HTTP que ya definimos
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error al obtener IPC.")
+
+
+@app.get("/api/economia/tipo_cambio", tags=["Económicos"])
+def obtener_tipo_cambio():
+    try:
+        r = requests.get("https://mindicador.cl/api/dolar")
+        d = r.json()
+        return {
+            "indicador": d["nombre"],
+            "fecha": d["serie"][0]["fecha"][:10],
+            "valor": d["serie"][0]["valor"],
+            "fuente": "mindicador.cl"
+        }
+    except:
+        raise HTTPException(status_code=500, detail="Error al obtener tipo de cambio.")
+
+# ---------------------------
+# Endpoints base de datos
+# ---------------------------
+@app.get("/api/db/indicadores", tags=["Base de Datos"])
+def obtener_indicadores(indicador: str):
+    conn = get_db_connection()
+    data = conn.execute("SELECT * FROM indicadores WHERE indicador = ?", (indicador,)).fetchall()
+    conn.close()
+    if not data:
+        raise HTTPException(status_code=404, detail=f"No hay datos del indicador '{indicador}'.")
+    return [dict(i) for i in data]
+
+# ---------------------------
+# Endpoint analítico
+# ---------------------------
+@app.get("/api/analisis/impacto-inflacion", tags=["Analíticos"])
+def impacto_inflacion(periodo: str):
+    conn = get_db_connection()
+    gastos = conn.execute("SELECT categoria, monto FROM gastos").fetchall()
+    conn.close()
+    if not gastos:
+        raise HTTPException(status_code=404, detail="No hay gastos registrados.")
+
+    try:
+        r = requests.get("https://mindicador.cl/api/ipc")
+        d = r.json()
+        ipc = d["serie"][0]["valor"]
+    except:
+        raise HTTPException(status_code=500, detail="Error al obtener IPC.")
+
+    impacto = {g["categoria"]: f"+{round(ipc * 0.05, 2)}%" for g in gastos}
+
+    return {
+        "periodo": periodo,
+        "ipc": ipc,
+        "impacto_estimado": impacto,
+        "mensaje": f"Costo de vida ↑ {round(ipc * 0.05, 2)}% aprox."
+    }
+
+@app.get("/gastos/escenario-inflacion", tags=["Analíticos"])
+def api_escenario_inflacion(porcentaje: float):
+    return escenario_inflacion(porcentaje)
+
+
+@app.get("/gastos/escenario-tipo-cambio", tags=["Analíticos"])
+def api_escenario_tipo_cambio(tipo_cambio: float):
+    try:
+        return escenario_tipo_cambio(tipo_cambio)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ---------------------------
+# Endpoint raíz
+# ---------------------------
+@app.get("/", tags=["Inicio"])
+def home():
+    return {"mensaje": "API funcionando correctamente 🚀"}
