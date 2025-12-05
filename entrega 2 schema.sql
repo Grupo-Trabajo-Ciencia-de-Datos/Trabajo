@@ -18,4 +18,5 @@ CREATE TABLE IF NOT EXISTS gastos (
 sqlite3 gastos.db < schema.sql
 -- para verificar que se creo tambien poner en terminal:
 sqlite3 gastos.db ".tables"
+
 sqlite3 gastos.db ".schemagastos"
