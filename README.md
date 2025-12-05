@@ -72,16 +72,24 @@ Endpoints principales:
 --Endpoints de gastos (personales)
 
 Método	Ruta	Descripción
+
 GET	/api/db/gastos	Lista todos los gastos guardados en la base de datos.
+
 POST	/api/db/gastos	Agrega un nuevo gasto (requiere categoria y monto).
+
 GET	/api/db/gastos/{id}	Devuelve un gasto específico por su ID.
+
 PUT	/api/db/gastos/{id}	Actualiza la categoría y monto de un gasto existente.
+
 DELETE	/api/db/gastos/{id}	Elimina un gasto por su ID.
 
 
 --Endpoints de economía (externos)
+
 Método	Ruta	Descripción
+
 GET	/api/economia/ipc	Obtiene el último valor del Índice de Precios al Consumidor (IPC).
+
 GET	/api/economia/tipo_cambio	Obtiene el valor actual del dólar observado (USD/CLP).
 
 Estos endpoints consultan mindicador.cl. Se incluye una validación para devolver el dato más reciente que no sea 0.
@@ -90,11 +98,17 @@ Estos endpoints consultan mindicador.cl. Se incluye una validación para devolve
 --Endpoints de indicadores (base de datos)
 
 Método	Ruta	Descripción
+
 GET	/api/db/indicadores?indicador=ipc	Devuelve los registros históricos de un indicador (ipc o dolar) guardados en la BD.
+
 Endpoints de análisis
+
 Método	Ruta	Parámetros	Descripción
+
 GET	/api/analisis/impacto-inflacion	periodo (str)	Estima el impacto de la inflación sobre los gastos totales para un periodo (por ejemplo 2025-11).
+
 GET	/gastos/escenario-inflacion	porcentaje (float)	Simula el aumento de gastos si la inflación sube un cierto porcentaje. Usa la función escenario_inflacion del módulo analisis.
+
 GET	/gastos/escenario-tipo-cambio	tipo_cambio (float)	Simula el costo de tus gastos si el dólar cambia al valor dado.
 
 Ejemplo de uso: 
@@ -208,4 +222,5 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
