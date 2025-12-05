@@ -8,14 +8,14 @@ Profesor: Carlos Alvarado
 
 Semestre: 2° semestre 2025
 
-Última actualización: 6 de diciembre de 2025
+Última actualización: 5 de diciembre de 2025
 
 
 ¿De qué trata este proyecto?
 
 Esta API analiza el costo de vida mensual de un estudiante universitario en Chile.
 Combina gastos personales almacenados en una base de datos local (SQLite) con indicadores económicos reales obtenidos desde la API pública mindicador.cl
- (IPC y tipo de cambio).
+ (IPC, inflación y tipo de cambio).
 
 La aplicación ofrece, entre otras cosas:
 
@@ -25,12 +25,10 @@ Consulta de indicadores económicos: Obtención del IPC y tipo de cambio del dó
 
 Análisis del presupuesto: Cálculo del impacto de la inflación sobre el presupuesto y simulaciones bajo distintos escenarios de tipo de cambio.
 
-Resumen mensual: Consolidación de gastos por mes y categoría para comprender mejor en qué se está gastando.
-
-Todo esto se expone mediante endpoints REST documentados automáticamente en Swagger (/docs) gracias a FastAPI.
 
 
  Instalación y Configuración
+ 
 Requisitos previos:
 
 Python 3.9 o superior
@@ -61,6 +59,8 @@ python scripts/ingesta.py
 
 Este script consulta la API de mindicador.cl y guarda en la tabla indicadores los últimos valores de IPC y dólar. Al finalizar, mostrará un mensaje confirmando la operación.
 
+
+
 Cómo ejecutar la API:
 
 Con el entorno virtual activo y la base de datos inicializada, arranca el servidor de desarrollo con Uvicorn:
@@ -70,7 +70,7 @@ uvicorn main:app --reload
 
 Abre tu navegador en http://127.0.0.1:8000/docs
 
- para ver la documentación interactiva de Swagger. Desde ahí podrás probar todos los endpoints.
+Desde ahí podrás probar todos los endpoints.
 
 Endpoints principales:
 
@@ -165,8 +165,6 @@ FastAPI: framework web moderno y asíncrono para construir APIs en Python.
 
 SQLite: base de datos ligera para almacenamiento local.
 
-Pydantic: validación de datos y creación de modelos.
-
 Uvicorn: servidor ASGI para desarrollo.
 
 APIs externas:
@@ -177,9 +175,7 @@ Python 3.9+
 
 pip/venv para manejo de dependencias
 
-pytest para pruebas unitarias (no incluidas, pero recomendadas)
-
-Git/GitHub para control de versiones y despliegue.
+Git/GitHub para control y almacen de versiones.
 
 Próximos pasos y mejoras
 
@@ -227,6 +223,7 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
 
