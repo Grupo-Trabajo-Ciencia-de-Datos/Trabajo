@@ -1,12 +1,16 @@
-📌 Costo de Vida Universitario en Chile
+Costo de Vida Universitario en Chile
+
 Entrega Final – EAE253B Economía y Ciencia de Datos
 
 Autores: André van Bavel · Nicolás Droppelmann
+
 Profesor: Carlos Alvarado
+
 Semestre: 2º semestre 2025
+
 Última actualización: 6 de diciembre de 2025
 
-1. 🧠 ¿De qué trata este proyecto?
+1. ¿De qué trata este proyecto?
 
 Esta API analiza el costo de vida mensual de un estudiante universitario en Chile, combinando:
 
@@ -188,3 +192,4 @@ Dashboard visual (Streamlit).
 10. ✔️ Última actualización
 
 6 de diciembre de 2025
+
