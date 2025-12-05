@@ -38,9 +38,13 @@ Python 3.9 o superior
 pip instalado
 
 Crear el entorno virtual e instalar dependencias
+
 python3 -m venv venv
+
 source venv/bin/activate            # En macOS/Linux
+
 venv\Scripts\activate             # En Windows
+
 pip install -r requirements.txt     # Instala fastapi, uvicorn, requests, pydantic, etc.
 
 Configurar la base de datos
@@ -65,6 +69,7 @@ uvicorn main:app --reload
 
 
 Abre tu navegador en http://127.0.0.1:8000/docs
+
  para ver la documentación interactiva de Swagger. Desde ahí podrás probar todos los endpoints.
 
 Endpoints principales:
@@ -176,7 +181,7 @@ pytest para pruebas unitarias (no incluidas, pero recomendadas)
 
 Git/GitHub para control de versiones y despliegue.
 
-📈 Próximos pasos y mejoras
+Próximos pasos y mejoras
 
 Agregar cache para respuestas de APIs externas (menos latencia y menor uso de la cuota de mindicador.cl).
 
@@ -197,12 +202,12 @@ Nicolás Droppelmann: diseño de escenarios de análisis, desarrollo de document
 
 Trabajamos de forma colaborativa utilizando Visual Studio Code y GitHub, compartiendo el repositorio y realizando pruebas conjuntas. Entre clases y ayudantías, discutimos iteraciones y refinamos el enfoque tanto en la parte técnica como en la económica.
 
-📝 Licencia
+Licencia
 
 Proyecto desarrollado para el curso EAE253B – Economía y Ciencia de Datos de la Pontificia Universidad Católica de Chile (2025).
 El código se entrega con fines educativos y se puede reutilizar citando a los autores.
 
-📞 Contacto
+Contacto
 
 Estudiante 1: André van Bavel — andre.vanbavel@uc.cl
 
@@ -212,7 +217,7 @@ Profesor: Carlos Alvarado — cealvara@uc.cl
 
 Repositorio: https://github.com/andrevanbavel-web/Grupo-Trabajo-Ciencia-de-Datos/Trabajo
 
-🙏 Agradecimientos
+Agradecimientos
 
 Profesor Carlos Alvarado y ayudantes del curso por sus explicaciones y guía.
 
@@ -222,5 +227,6 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
