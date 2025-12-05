@@ -1,300 +1,345 @@
-Entrega Final – API Costo de Vida Universitario en Chile
-EAE253B - Economía y Ciencia de Datos
+📌 Costo de Vida Universitario en Chile
+Entrega Final – EAE253B Economía y Ciencia de Datos
 
 Autores: André van Bavel | Nicolás Droppelmann
 Profesor: Carlos Alvarado
-Semestre: 2do semestre 2025
+Semestre: 2° semestre 2025
 Última actualización: 6 de diciembre de 2025
 
-1. Descripción del Proyecto y Objetivos
+1. ¿De qué trata este proyecto?
 
-Este proyecto desarrolla una API completa que permite analizar el costo de vida mensual de un estudiante universitario en Chile utilizando:
+Esta API tiene como objetivo analizar el costo de vida mensual de un estudiante universitario en Chile, combinando:
 
-Gastos personales registrados en una base de datos SQLite
+Gastos personales registrados en una base de datos local.
 
-Indicadores económicos en tiempo real, obtenidos desde la API pública mindicador.cl
+Indicadores económicos reales, obtenidos desde la API pública mindicador.cl
+.
 
 Cálculos analíticos, como:
 
 impacto de la inflación sobre el presupuesto,
 
-simulaciones con otros tipos de cambio,
+simulaciones bajo distintos tipos de cambio,
 
-análisis mensual por categoría.
+resúmenes mensuales por categoría.
 
-La API fue desarrollada en FastAPI, integra SQL real para manejo de datos (creación, lectura, actualización y eliminación), y está completamente documentada mediante Swagger UI.
+La API está desarrollada en FastAPI, usa SQLite como base de datos, y expone todos sus endpoints de manera ordenada a través de Swagger (/docs).
 
-La entrega 4 incorpora:
+Esta entrega final mejora y completa la entrega 3 incorporando:
 
-CRUD completo para gastos
+CRUD completo para la tabla de gastos.
 
-APIs externas funcionando con manejo de errores
+Endpoints analíticos que usan tanto la base de datos como APIs externas.
 
-Funciones analíticas separadas en analisis.py
+Documentación clara en el código y en este README.
 
-Documentación extendida en cada endpoint
+Separación de la lógica económica en un módulo aparte (analisis.py).
 
-Explicación detallada del sistema
+2. Instalación y ejecución
+2.1 Requisitos
 
-Base de datos funcional que se genera automáticamente si no existe
-
-El objetivo es crear una herramienta que mezcle ciencia de datos, economía aplicada y programación, y que permita entender cómo cambian los gastos universitarios frente a shocks económicos reales.
-
-2. Instalación y Configuración
-Requisitos Previos
-
-Python 3.9+
+Python 3.9 o superior
 
 pip instalado
 
-(Opcional) SQLite3 CLI instalado para revisar la base de datos
+(Opcional) sqlite3 en la terminal para revisar la base de datos
 
-2.1 Crear el entorno virtual e instalar dependencias
+2.2 Crear entorno virtual e instalar dependencias
 python -m venv venv
-source venv/bin/activate      # Mac/Linux
+source venv/bin/activate      # Mac / Linux
 venv\Scripts\activate         # Windows
+
 pip install fastapi uvicorn requests
 
 
-SQLite ya viene incluido con Python.
+(No es necesario instalar sqlite3 vía pip, viene con Python.)
 
-2.2 Crear la Base de Datos
+2.3 Crear la base de datos
 
-Existen dos formas válidas:
+Tienes dos opciones válidas:
 
-Opción A: ejecutar ingesta.py (recomendada)
+🔹 Opción A: usar ingesta.py (recomendada)
 python ingesta.py
 
 
-Esto:
+Este script se encarga de:
 
-crea gastos.db,
+Crear gastos.db si no existe.
 
-genera las tablas necesarias,
+Crear las tablas necesarias.
 
-inserta registros de ejemplo.
+Insertar datos de ejemplo (gastos e indicadores).
 
-Si aparece:
-
-Base creada y datos insertados correctamente.
-
-
-Ya está lista.
-
-Opción B: usar schema.sql
+🔹 Opción B: usar schema.sql
 sqlite3 gastos.db < schema.sql
 
 
-Esto reconstruye la base de datos desde cero.
+Esto recrea la estructura de la base. Luego se pueden insertar datos manualmente o con otros scripts.
 
-2.3 Ejecutar la API
+2.4 Levantar la API
+
+Con el entorno virtual activado, ejecutar:
+
 uvicorn main:app --reload
 
 
-Luego entrar a:
+Si todo sale bien, deberías ver algo como:
 
- http://127.0.0.1:8000/docs
+Uvicorn running on http://127.0.0.1:8000
 
-Aquí se puede probar todo sin usar terminal.
 
-3. Estructura del Proyecto (Entrega 4)
+Luego, en el navegador:
+
+👉 http://127.0.0.1:8000/docs
+
+Ahí aparece la documentación interactiva (Swagger) con todos los endpoints.
+
+3. Estructura del proyecto
 proyecto-costo-vida/
 │
-├── main.py                # Código principal de la API (endpoints y lógica HTTP)
-├── analisis.py            # Funciones económicas (inflación, tipo cambio, resumen mensual)
-├── ingesta.py             # Crea y puebla la base de datos
-├── schema.sql             # Esquema SQL para construir las tablas
-├── gastos.db              # Base de datos SQLite generada
-└── README.md              # Este documento
+├── main.py         # API principal: endpoints, rutas y conexión con la BD
+├── analisis.py     # Funciones de análisis económico (inflación, tipo de cambio, resúmenes)
+├── ingesta.py      # Script para crear y poblar la base de datos
+├── schema.sql      # Esquema SQL para reconstruir la base de datos
+├── gastos.db       # Base SQLite con datos (se genera si no existe)
+└── README.md       # Este documento
+
+Resumen rápido de cada archivo
+
+main.py
+Define la aplicación FastAPI, el modelo Gasto, las rutas (endpoints) y cómo se conecta con la base de datos y con analisis.py.
+
+analisis.py
+Contiene la lógica económica: resumen mensual de gastos, escenarios de inflación y escenarios de tipo de cambio.
+
+ingesta.py
+Crea la base gastos.db y la llena con datos iniciales. Es útil para levantar el proyecto desde cero.
+
+schema.sql
+Guarda la estructura de las tablas (gastos, indicadores) en SQL puro, para reconstruir la base fácilmente.
+
+gastos.db
+Es la base de datos real. La API lee y escribe aquí.
+
+4. Modelo de datos
+
+La base de datos cuenta con dos tablas principales:
+
+CREATE TABLE gastos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  categoria TEXT,
+  monto REAL,
+  fecha TEXT
+);
+
+CREATE TABLE indicadores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  fecha TEXT,
+  indicador TEXT,
+  valor REAL
+);
 
 
-Cada archivo cumple un rol bien definido:
+gastos: contiene los gastos personales (por categoría, monto y fecha).
 
-main.py: orquesta la API, la BD y los cálculos.
+indicadores: almacena valores históricos de indicadores económicos (IPC, dólar, etc.).
 
-analisis.py: contiene cálculos reales y simulaciones.
+5. Endpoints de la API
 
-ingesta.py: permite levantar todo desde cero si se borra la BD.
+A continuación se resumen los endpoints más importantes, agrupados por tipo.
 
-schema.sql: referencia para el modelo de datos.
+Todos se pueden probar fácilmente desde http://127.0.0.1:8000/docs.
 
-gastos.db: base funcional requerida por los endpoints.
+5.1 Endpoints personales
 
-README.md: documentación del proyecto.
+Estos endpoints son más ilustrativos que funcionales, y sirven para cumplir requisitos del curso y mostrar cómo se devuelve información fija.
 
-4. Detalle de Endpoints (Entrega Final)
-
-La API cuenta con cuatro grupos de endpoints:
-
- Endpoints Personales
 GET /personal/familia
-
-Devuelve información personal básica.
+Devuelve información básica del estudiante y su familia.
 
 GET /personal/intereses
-
-Lista intereses declarados por el estudiante.
+Lista intereses del estudiante (economía, ciencia de datos, etc.).
 
 GET /personal/historial
+Entrega información académica (carrera, universidad, semestres cursados, promedio).
 
-Información académica relevante.
+5.2 CRUD completo de gastos (SQLite)
 
-Estos endpoints existen para cumplir el requerimiento de tener endpoints que no dependen de la BD.
+Estos endpoints trabajan directamente con la tabla gastos de la base de datos gastos.db.
 
- CRUD Completo para Gastos (SQLite)
 GET /api/db/gastos
-
-Devuelve la lista completa de gastos almacenados.
+Devuelve todos los gastos registrados.
 
 POST /api/db/gastos
-
-Agrega un gasto nuevo con fecha automática.
+Crea un gasto nuevo.
+Ejemplo de body:
 
 {
-  "categoria": "Arriendo",
-  "monto": 350000
+  "categoria": "Transporte",
+  "monto": 30000
 }
 
-GET /api/db/gastos/{id}
 
-Busca un gasto específico.
+GET /api/db/gastos/{gasto_id}
+Devuelve un gasto específico según su ID.
 
-PUT /api/db/gastos/{id}
+PUT /api/db/gastos/{gasto_id}
+Actualiza la categoría y/o monto de un gasto existente.
 
-Actualiza categoría o monto.
+DELETE /api/db/gastos/{gasto_id}
+Elimina un gasto de forma permanente.
 
-DELETE /api/db/gastos/{id}
+5.3 Endpoints económicos (API externa real)
 
-Elimina un registro por ID.
+Estos endpoints consumen datos reales desde mindicador.cl
+.
 
-Estos endpoints utilizan SQL puro para modificar gastos.db.
-
- Endpoints Económicos (APIs externas reales)
 GET /api/economia/ipc
 
-Conecta a mindicador.cl/api/ipc
+Llama a https://mindicador.cl/api/ipc.
 
-Busca el último valor válido (evita valores 0)
+Recorre la serie de datos y toma el último valor distinto de 0 (para evitar registros vacíos).
 
-Devuelve:
+Devuelve un JSON con:
 
-nombre del indicador,
+{
+  "indicador": "Índice de Precios al Consumidor (IPC)",
+  "fecha": "YYYY-MM-DD",
+  "valor": 4.2,
+  "fuente": "mindicador.cl"
+}
 
-fecha,
-
-valor numérico,
-
-fuente de datos.
 
 GET /api/economia/tipo_cambio
 
-Similar al anterior, pero para el dólar observado.
+Llama a https://mindicador.cl/api/dolar.
 
- Endpoints Analíticos (Entrega 4)
-GET /api/analisis/impacto-inflacion?periodo=YYYY-MM
+Devuelve el valor del dólar observado (USD/CLP) más reciente.
 
-Calcula:
+5.4 Endpoints sobre la base de datos de indicadores
 
-IPC real desde la API externa
+GET /api/db/indicadores?indicador=ipc
+Devuelve todos los registros de la tabla indicadores que coinciden con el nombre del indicador entregado.
 
-Impacto porcentual aproximado sobre cada categoría de gasto
+Sirve para revisar el histórico guardado por ingesta.py o por otros procesos.
 
-Mensaje interpretativo del resultado
+5.5 Endpoints analíticos
 
-Ejemplo de salida:
+Aquí es donde se mezcla todo: gastos personales, datos externos y lógica económica de analisis.py.
+
+GET /api/analisis/impacto-inflacion?periodo=...
+
+Lee los gastos desde gastos.db.
+
+Obtiene el último IPC válido desde mindicador.cl.
+
+Estima un impacto aproximado por categoría.
+
+Devuelve un mensaje interpretando el resultado.
+
+Ejemplo (formato conceptual):
 
 {
   "periodo": "2025-11",
   "ipc": 4.2,
   "impacto_estimado": {
-    "Comida": "+0.21%",
-    "Arriendo": "+0.21%"
-  }
+    "Arriendo": "+0.21%",
+    "Comida": "+0.21%"
+  },
+  "mensaje": "Costo de vida ↑ 0.21% aprox."
 }
+
+GET /gastos/resumen-mensual?anio=2025&mes=5
+
+Esta ruta se implementa en analisis.py y se expone en main.py.
+Calcula para un mes específico:
+
+Total de gastos.
+
+Total por categoría.
+
+Si no hay datos para ese mes, se devuelve un error 404 desde la API.
 
 GET /gastos/escenario-inflacion?porcentaje=10
 
-Simula cuánto subiría cada gasto si la inflación fuera 10%.
+Simula qué pasa con el presupuesto si la inflación sube, por ejemplo, un 10%.
+El resultado permite ver cómo aumentaría el gasto total proyectado.
 
 GET /gastos/escenario-tipo-cambio?tipo_cambio=900
 
-Convierte los gastos estimados del mes a otra moneda o expresa el total en USD/CLP según lo que pida el usuario.
+Permite jugar con distintos tipos de cambio (por ejemplo, dólar a 900 o 1.000 pesos) y ver cómo cambiaría el costo de algunos componentes del presupuesto si estuvieran indexados a USD.
 
-5. Base de Datos (modelo actualizado)
-Tabla gastos
-id INTEGER PRIMARY KEY AUTOINCREMENT
-categoria TEXT
-monto REAL
-fecha TEXT
+5.6 Endpoint raíz
 
-Tabla indicadores
-id INTEGER PRIMARY KEY AUTOINCREMENT
-fecha TEXT
-indicador TEXT
-valor REAL
+GET /
+Solo devuelve un mensaje simple confirmando que la API está viva:
 
+{ "mensaje": "API funcionando correctamente 🚀" }
 
-El sistema permite registrar, consultar, comparar y simular con estos datos.
+6. ¿Cómo se conectan todas las piezas?
 
-6. Explicación de Funcionamiento Interno (Entrega 4 completa)
-Cómo fluye la información:
+A grandes rasgos, el flujo es así:
 
-El usuario hace una petición HTTP (por ejemplo: /api/analisis/impacto-inflacion).
+El usuario hace una petición HTTP a un endpoint (por ejemplo, /gastos/escenario-inflacion).
 
-FastAPI recibe la solicitud y ejecuta la función del endpoint en main.py.
+FastAPI (en main.py) recibe esa petición.
 
-Dependiendo del endpoint:
+Según el endpoint:
 
-Lee la base de datos SQLite,
+Se abre la conexión a la base de datos (gastos.db),
 
-Llama a la API externa de mindicador.cl,
+Se consulta una API externa (mindicador.cl),
 
-O ejecuta una función analítica en analisis.py.
+O se llama a una función en analisis.py.
 
-Todo se combina en una respuesta JSON clara.
+Se combinan los datos.
 
-Ejemplo:
+Se responde en formato JSON al cliente.
 
-main.py → obtener IPC externo → leer gastos del mes → analisis.py → devolver cálculo final
+La idea es separar:
 
-7. Tecnologías Utilizadas
+Capa de API → main.py (rutas, validaciones, respuestas HTTP)
 
-FastAPI — para manejar toda la API
+Capa de lógica → analisis.py (cálculos)
 
-Uvicorn — servidor ASGI
+Capa de datos → gastos.db + schema.sql + ingesta.py
 
-SQLite — base de datos local
+7. Tecnologías utilizadas
 
-Requests — consumir APIs externas
+FastAPI – Framework para construir la API.
 
-mindicador.cl — datos macroeconómicos reales
+Uvicorn – Servidor ASGI para desarrollo.
 
-8. Contribución del Equipo
+SQLite – Base de datos local ligera.
 
-André: Desarrollo estructural de la API, endpoints completos, SQL, testing y ajustes finales.
+Requests – Para conectar con la API de mindicador.cl.
 
-Nicolás: Análisis y documentación, ingesta de datos, soporte a cálculos económicos, revisión final.
+mindicador.cl – Fuente oficial de datos económicos de Chile.
 
-Trabajo colaborativo vía GitHub y Visual Studio Code.
+8. Trabajo en equipo
 
-9. Próximos pasos
+André: desarrollo del código principal de la API, endpoints, conexión con la base de datos, pruebas en Swagger.
 
-Agregar autenticación básica (token simple)
+Nicolás: apoyo en la lógica de análisis, ingesta de datos, revisión de documentación y preparación para la presentación final.
 
-Añadir paginación a gastos
+El trabajo se coordinó usando Visual Studio Code y GitHub, combinando clases, ayudantías y estudio personal.
 
-Mejorar análisis económico (elasticidades, deflactores reales, series de tiempo)
+9. Próximos pasos e ideas de mejora
 
-Implementar test unitarios con PyTest
+Implementar autenticación básica (por ejemplo, un token) para los endpoints que modifican datos.
+
+Agregar paginación a los endpoints de gastos cuando la tabla crezca mucho.
+
+Incorporar más análisis económicos (por ejemplo, comparar distintos años, gráficos, etc.).
+
+Escribir tests automáticos con pytest para los endpoints más importantes.
 
 10. Contacto
 
-André van Bavel: andre.vanbavel@uc.cl
+André van Bavel – andre.vanbavel@uc.cl
 
-Nicolás Droppelmann: ndroppelmann@uc.cl
+Nicolás Droppelmann – ndroppelmann@uc.cl
 
-Profesor: cealvara@uc.cl
+Profesor: Carlos Alvarado – cealvara@uc.cl
 
-Repositorio GitHub:
-https://github.com/andrevanbavel-web/Grupo-Trabajo-Ciencia-de-Datos
 
