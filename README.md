@@ -176,6 +176,10 @@ Datos de ejemplo
 
 10 registros de IPC y dólar obtenidos de mindicador.cl a lo largo de noviembre/diciembre de 2025.
 
+### Video demostración
+
+[link al video](https://youtu.be/RhMqbcZeRmY) 
+
 ### Tecnologías utilizadas:
 
 FastAPI: framework web moderno y asíncrono para construir APIs en Python.
@@ -230,6 +234,8 @@ Profesor: Carlos Alvarado — cealvara@uc.cl
 
 Repositorio: https://github.com/andrevanbavel-web/Grupo-Trabajo-Ciencia-de-Datos/Trabajo
 
+Link del video:
+
 Agradecimientos
 
 Profesor Carlos Alvarado y ayudantes del curso por sus explicaciones y guía.
@@ -240,6 +246,7 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
 
