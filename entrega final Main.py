@@ -4,7 +4,7 @@
 # Curso: EAE253B - Economía y Ciencia de Datos
 # Autores: André van Bavel | Nicolás Droppelmann
 # Profesor: Carlos Alvarado
-# Fecha: 6 de Diciembre, 2025
+# Fecha: 5 de Diciembre, 2025
 # ================================================================
 
 from fastapi import FastAPI, HTTPException
