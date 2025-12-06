@@ -4,10 +4,11 @@
 # Curso: EAE253B - Economía y Ciencia de Datos
 # Autores: André van Bavel | Nicolás Droppelmann
 # Profesor: Carlos Alvarado
-# Fecha: 6 de noviembre de 2025
+# Fecha: 6 de Diciembre, 2025
 # ================================================================
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import sqlite3
 import requests
@@ -73,9 +74,16 @@ def info_familia():
     Entrega información básica del estudiante y su grupo familiar a modo de ejemplo personal.
     """
     return {
-        "nombre": "André Van Bavel",
-        "ciudad": "Santiago, Chile",
-        "familia": 4
+        "nombre_andre": "André Van Bavel",
+        "ciudad_andre": "Curicó, Chile",
+        "familia_andre": 5,
+        "edad_andre": 24,
+        "estado_andre": "Soltero",
+        "nombre_nicolas": "Nicolás Droppelmann",
+        "ciudad_nicolas": "Vermont,EE.UU.",
+        "familia_nicolas": 5,
+        "edad_nicolas": 23,
+        "estado_nicolas": "Casado"
     }
 
 
@@ -85,7 +93,10 @@ def intereses():
     Devuelve una lista de intereses personales relacionados con economía, ciencia de datos y hobbies.
     """
     return {
-        "intereses": ["Economía", "Ciencia de Datos", "Fútbol", "Viajar", "Proyectos personales"]
+        "nombre": "André Van Bavel",
+        "intereses_andre": ["Economía", "Ciencia de Datos", "Fútbol", "Viajar", "Proyectos personales"],
+        "nombre": "Nicolás Droppelmann",
+        "intereses_nicolas": ["Economía", "Ciencia de Datos", "Fútbol", "Viajar", "Rezar los sabados por la noche"]
     }
 
 
@@ -95,10 +106,16 @@ def historial():
     Resume el historial académico del estudiante: carrera, universidad, semestres cursados y promedio.
     """
     return {
+        "nombre": "André Van Bavel",
         "carrera": "Ingeniería Comercial",
         "universidad": "Pontificia Universidad Católica de Chile",
         "semestres_cursados": 9,
-        "promedio": 6.1
+        "promedio": 6.1,
+        "nombre": "Nicolás Droppelmann",
+        "carrera": "Ingeniería Comercial",
+        "universidad": "Pontificia Universidad Católica de Chile",
+        "semestres_cursados": 8,
+        "promedio": 3.95
     }
 
 
@@ -313,6 +330,69 @@ def api_escenario_tipo_cambio(tipo_cambio: float):
 
 
 # ---------------------------
+# Endpoint: Visualizador BD (HTML)
+# ---------------------------
+
+
+@app.get("/ver-bd", response_class=HTMLResponse, tags=["Utilidades"])
+def ver_base_datos():
+    """
+    Muestra el contenido de las tablas 'gastos' e 'indicadores' en una página HTML simple.
+    """
+    conn = get_db_connection()
+    
+    # Obtener gastos
+    gastos = conn.execute("SELECT * FROM gastos").fetchall()
+    
+    # Obtener indicadores (limitado a últimos 20 para no saturar)
+    indicadores = conn.execute("SELECT * FROM indicadores ORDER BY fecha DESC LIMIT 20").fetchall()
+    
+    conn.close()
+
+    estilo = """
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        h1 { color: #333; }
+        h2 { border-bottom: 2px solid #666; padding-bottom: 5px; margin-top: 30px;}
+        table { border-collapse: collapse; width: 100%; background: white; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background-color: #4CAF50; color: white; }
+        tr:hover { background-color: #f5f5f5; }
+    </style>
+    """
+
+    html = f"""
+    <html>
+    <head>
+        <title>Visualizador de Base de Datos</title>
+        {estilo}
+    </head>
+    <body>
+        <h1>📂 Contenido de gastos.db</h1>
+        
+        <h2>💰 Tabla: Gastos</h2>
+        <table>
+            <tr>
+                <th>ID</th> <th>Categoría</th> <th>Monto</th> <th>Fecha</th>
+            </tr>
+            {"".join(f"<tr><td>{g['id']}</td><td>{g['categoria']}</td><td>{g['monto']}</td><td>{g['fecha']}</td></tr>" for g in gastos)}
+        </table>
+
+        <h2>📈 Tabla: Indicadores (Últimos 20)</h2>
+        <table>
+            <tr>
+                <th>ID</th> <th>Indicador</th> <th>Fecha</th> <th>Valor</th>
+            </tr>
+            {"".join(f"<tr><td>{i['id']}</td><td>{i['indicador']}</td><td>{i['fecha']}</td><td>{i['valor']}</td></tr>" for i in indicadores)}
+        </table>
+        <p><em>Vista rápida generada por FastAPI</em></p>
+    </body>
+    </html>
+    """
+    return html
+
+
+# ---------------------------
 # Endpoint raíz
 # ---------------------------
 
@@ -322,5 +402,5 @@ def home():
     """
     Endpoint raíz de la API. Permite verificar que el servidor está corriendo correctamente.
     """
-    return {"mensaje": "API funcionando correctamente 🚀"}
+    return {"mensaje": "API funcionando correctamente"}
 
