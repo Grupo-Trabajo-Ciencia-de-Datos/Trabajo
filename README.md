@@ -11,7 +11,7 @@ Semestre: 2° semestre 2025
 Última actualización: 5 de diciembre de 2025
 
 
-¿De qué trata este proyecto?
+### ¿De qué trata este proyecto?
 
 Esta API analiza el costo de vida mensual de un estudiante universitario en Chile.
 Combina gastos personales almacenados en una base de datos local (SQLite) con indicadores económicos reales obtenidos desde la API pública mindicador.cl
@@ -38,7 +38,7 @@ entrega_final/
 
 
 
- Instalación y Configuración
+### Instalación y Configuración
  
 Requisitos previos:
 
@@ -72,7 +72,7 @@ Este script consulta la API de mindicador.cl y guarda en la tabla indicadores lo
 
 
 
-Cómo ejecutar la API:
+### Cómo ejecutar la API:
 
 Con el entorno virtual activo y la base de datos inicializada, arranca el servidor de desarrollo con Uvicorn:
 
@@ -83,9 +83,9 @@ Abre tu navegador en http://127.0.0.1:8000/docs
 
 Desde ahí podrás probar todos los endpoints.
 
-Endpoints principales:
+### Endpoints principales:
 
---Endpoints de gastos (personales)
+#### --Endpoints de gastos (personales)
 
 Método	Ruta	Descripción
 
@@ -96,7 +96,7 @@ GET /personal/intereses Lista de intereses personales de la persona.
 GET /personal/historial Informacion personal sobre su vida academica.
 
 
-Endpoints Base de Datos:
+#### Endpoints Base de Datos:
 
 GET	/api/db/gastos	Lista todos los gastos guardados en la base de datos.
 
@@ -110,7 +110,7 @@ DELETE	/api/db/gastos/{id}	Elimina un gasto por su ID.
 
 GET	/api/db/indicadores?indicador=ipc	Devuelve los registros históricos de un indicador (ipc o dolar) guardados en la BD.
 
---Endpoints de economía (externos)
+#### --Endpoints de economía (externos)
 
 Método	Ruta	Descripción
 
@@ -121,7 +121,7 @@ GET	/api/economia/tipo_cambio	Obtiene el valor actual del dólar observado (USD/
 Estos endpoints consultan mindicador.cl. Se incluye una validación para devolver el dato más reciente que no sea 0.
 
 
-Endpoints de análisis
+#### Endpoints de análisis
 
 Método	Ruta	Parámetros	Descripción
 
@@ -131,7 +131,7 @@ GET	/gastos/escenario-inflacion	porcentaje (float)	Simula el aumento de gastos s
 
 GET	/gastos/escenario-tipo-cambio	tipo_cambio (float)	Simula el costo de tus gastos si el dólar cambia al valor dado.
 
-Ejemplo de uso: 
+### Ejemplo de uso: 
 
 Escenario de tipo de cambio
 
@@ -142,7 +142,9 @@ GET /gastos/escenario-tipo-cambio?tipo_cambio=1000
 
 La respuesta mostrará cómo cada gasto en pesos aumentaría o disminuiría según el nuevo tipo de cambio, junto con un mensaje explicativo.
 
-Base de datos:
+
+
+### Base de datos:
 
 
 La aplicación utiliza dos tablas principales:
@@ -174,7 +176,7 @@ Datos de ejemplo
 
 10 registros de IPC y dólar obtenidos de mindicador.cl a lo largo de noviembre/diciembre de 2025.
 
-Tecnologías utilizadas:
+### Tecnologías utilizadas:
 
 FastAPI: framework web moderno y asíncrono para construir APIs en Python.
 
@@ -203,7 +205,7 @@ Añadir un endpoint analítico para sensibilizar costos mixtos (CLP + USD) segú
 Explorar la integración con dashboards (por ejemplo, using Streamlit o Dash) para visualizaciones interactivas.
 
  
- Contribuciones:
+### Contribuciones:
  
 División del trabajo
 
@@ -238,6 +240,7 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
 
