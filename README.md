@@ -25,6 +25,17 @@ Consulta de indicadores económicos: Obtención del IPC y tipo de cambio del dó
 
 Análisis del presupuesto: Cálculo del impacto de la inflación sobre el presupuesto y simulaciones bajo distintos escenarios de tipo de cambio.
 
+Estructura del proyecto:
+
+entrega_final/
+│
+├── main.py            # Código principal: define la API y sus endpoints
+├── analisis.py        # Funciones analíticas para el presupuesto (resúmenes y escenarios)
+├── ingesta.py         # Script que descarga IPC y tipo de cambio y los guarda en la base
+├── schema.sql         # Esquema de la base de datos (tablas y campos)
+├── gastos.db          # Base de datos SQLite (creada automáticamente por ingesta.py)
+└── README.md          # Este documento
+
 
 
  Instalación y Configuración
@@ -227,6 +238,7 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
 
