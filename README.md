@@ -78,6 +78,15 @@ Endpoints principales:
 
 Método	Ruta	Descripción
 
+GET /personal/familia Informacion simple del contexto de la persona.
+
+GET /personal/intereses Lista de intereses personales de la persona.
+
+GET /personal/historial Informacion personal sobre su vida academica.
+
+
+Endpoints Base de Datos:
+
 GET	/api/db/gastos	Lista todos los gastos guardados en la base de datos.
 
 POST	/api/db/gastos	Agrega un nuevo gasto (requiere categoria y monto).
@@ -88,6 +97,7 @@ PUT	/api/db/gastos/{id}	Actualiza la categoría y monto de un gasto existente.
 
 DELETE	/api/db/gastos/{id}	Elimina un gasto por su ID.
 
+GET	/api/db/indicadores?indicador=ipc	Devuelve los registros históricos de un indicador (ipc o dolar) guardados en la BD.
 
 --Endpoints de economía (externos)
 
@@ -99,12 +109,6 @@ GET	/api/economia/tipo_cambio	Obtiene el valor actual del dólar observado (USD/
 
 Estos endpoints consultan mindicador.cl. Se incluye una validación para devolver el dato más reciente que no sea 0.
 
-
---Endpoints de indicadores (base de datos)
-
-Método	Ruta	Descripción
-
-GET	/api/db/indicadores?indicador=ipc	Devuelve los registros históricos de un indicador (ipc o dolar) guardados en la BD.
 
 Endpoints de análisis
 
@@ -223,6 +227,7 @@ Equipo detrás de mindicador.cl
  por proveer datos actualizados.
 
 Última actualización: 6 de diciembre de 2025
+
 
 
 
